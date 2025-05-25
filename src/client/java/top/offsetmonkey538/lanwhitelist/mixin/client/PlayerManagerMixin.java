@@ -23,33 +23,7 @@ public abstract class PlayerManagerMixin {
     @Accessor("whitelist")
     protected abstract void setWhitelist(Whitelist whitelist);
 
-    // @Redirect(
-    //         method = "<init>",
-    //         at = @At(
-    //                 value = "FIELD",
-    //                 target = "Lnet/minecraft/server/PlayerManager;whitelist:Lnet/minecraft/server/Whitelist;",
-    //                 opcode = Opcodes.PUTFIELD
-    //         )
-    // )
-    // private void lan_whitelist$storeSingleplayerWhitelistInWorldFolder(PlayerManager instance, Whitelist value) {
-    //
-    // }
-
-    // @ModifyArg(
-    //         method = "<init>",
-    //         at = @At(
-    //                 value = "INVOKE",
-    //                 target = "Lnet/minecraft/server/Whitelist;<init>(Ljava/io/File;)V"
-    //         )
-    // )
-    // private File lan_whitelist$storeSingleplayerWhitelistInWorldFolder(File file) {
-    //     final PlayerManager thiz = ((PlayerManager) (Object) this);
-    //     if (thiz.getServer().isDedicated()) return file;
-
-    //     return thiz.getServer().getSavePath(WorldSavePath.ROOT).resolve(file.getName()).toFile();
-    // }
-
-    // Can't just modify on assignment like I tried above, because "server" wasn't set at that point yet.
+    // Can't just modify on assignment, because "server" won't be set at that point yet.
     @Inject(
             method = "<init>",
             at = @At("TAIL")
