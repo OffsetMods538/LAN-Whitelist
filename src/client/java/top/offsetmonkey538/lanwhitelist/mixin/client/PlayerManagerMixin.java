@@ -1,19 +1,18 @@
 package top.offsetmonkey538.lanwhitelist.mixin.client;
 
-import net.minecraft.registry.CombinedDynamicRegistries;
-import net.minecraft.registry.ServerDynamicRegistryType;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.Whitelist;
 import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.PlayerSaveHandler;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.offsetmonkey538.lanwhitelist.LANWhitelist;
 import top.offsetmonkey538.lanwhitelist.persistent.WhitelistPersistentState;
+
+import java.io.IOException;
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {
@@ -28,7 +27,7 @@ public abstract class PlayerManagerMixin {
             method = "<init>",
             at = @At("TAIL")
     )
-    private void lan_whitelist$storeSingleplayerWhitelistInWorldFolder(MinecraftServer server, CombinedDynamicRegistries<ServerDynamicRegistryType> registryManager, PlayerSaveHandler saveHandler, int maxPlayers, CallbackInfo ci) {
+    private void lan_whitelist$storeSingleplayerWhitelistInWorldFolder(CallbackInfo ci) {
         final PlayerManager thiz = ((PlayerManager) (Object) this);
         if (thiz.getServer().isDedicated()) return;
 
@@ -46,5 +45,20 @@ public abstract class PlayerManagerMixin {
         final WhitelistPersistentState state = WhitelistPersistentState.getServerState(thiz.getServer());
         state.enabled = whitelistEnabled;
         state.markDirty();
+    }
+
+    @Inject(
+            method = "reloadWhitelist",
+            at = @At("TAIL")
+    )
+    private void lan_whitelist$reloadWhitelistEvenOnIntegratedServer(CallbackInfo ci) {
+        final PlayerManager thiz = ((PlayerManager) (Object) this);
+        if (thiz.getServer().isDedicated()) return;
+
+        try {
+            thiz.getWhitelist().load();
+        } catch (IOException e) {
+            LANWhitelist.LOGGER.warn("Failed to load white-list: ", e);
+        }
     }
 }
