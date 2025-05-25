@@ -1,1 +1,9 @@
 accessWidener    v1    named
+
+accessible method net/minecraft/server/dedicated/command/WhitelistCommand executeReload (Lnet/minecraft/server/command/ServerCommandSource;)I
+accessible method net/minecraft/server/dedicated/command/WhitelistCommand executeOn (Lnet/minecraft/server/command/ServerCommandSource;)I
+accessible method net/minecraft/server/dedicated/command/WhitelistCommand executeOff (Lnet/minecraft/server/command/ServerCommandSource;)I
+accessible method net/minecraft/server/dedicated/command/WhitelistCommand executeList (Lnet/minecraft/server/command/ServerCommandSource;)I
+
+accessible method net/minecraft/server/dedicated/command/WhitelistCommand executeAdd (Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/Collection;)I
+accessible method net/minecraft/server/dedicated/command/WhitelistCommand executeRemove (Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/Collection;)I

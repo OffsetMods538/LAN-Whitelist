@@ -1,0 +1,3 @@
+{
+    "commands.lan_whitelist.whitelist.remove.host": "Can't remove the host (%s) from white-list!"
+}
