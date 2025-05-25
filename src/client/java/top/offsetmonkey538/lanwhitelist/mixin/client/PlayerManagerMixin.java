@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import top.offsetmonkey538.lanwhitelist.persistent.WhitelistPersistentState;
 
 @Mixin(PlayerManager.class)
 public abstract class PlayerManagerMixin {
@@ -58,5 +59,18 @@ public abstract class PlayerManagerMixin {
         if (thiz.getServer().isDedicated()) return;
 
         setWhitelist(new Whitelist(thiz.getServer().getSavePath(WorldSavePath.ROOT).resolve(thiz.getWhitelist().getFile().getName()).toFile()));
+    }
+
+    @Inject(
+            method = "setWhitelistEnabled",
+            at = @At("TAIL")
+    )
+    private void lan_whitelist$storeWhitelistEnabledIntoPersistentState(boolean whitelistEnabled, CallbackInfo ci) {
+        final PlayerManager thiz = ((PlayerManager) (Object) this);
+        if (thiz.getServer().isDedicated()) return;
+
+        final WhitelistPersistentState state = WhitelistPersistentState.getServerState(thiz.getServer());
+        state.enabled = whitelistEnabled;
+        state.markDirty();
     }
 }
