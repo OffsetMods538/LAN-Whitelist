@@ -1,0 +1,147 @@
+import dex.plugins.outlet.v2.util.ReleaseType
+
+plugins {
+	id 'fabric-loom' version '1.10-SNAPSHOT'
+	id 'io.github.dexman545.outlet' version '1.6.1'
+	id 'com.modrinth.minotaur' version '2.+'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+archivesBaseName = "lan-whitelist"
+group = "top.offsetmonkey538.lanwhitelist"
+version = "${project.mod_version}+${project.minecraft_version}"
+
+outlet {
+	maintainPropertiesFile = System.getenv("DISABLE_PROPERTIES_UPDATE") == null
+	mcVersionRange = project.supported_minecraft_versions
+	allowedReleaseTypes = Set.of(ReleaseType.RELEASE)
+	propertiesData = [
+			'yarn_version': outlet.yarnVersion(project.minecraft_version),
+			'loader_version': outlet.loaderVersion()
+	]
+}
+
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		modid {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+
+	accessWidenerPath = file("src/main/resources/lan-whitelist.accesswidener")
+
+	runs {
+		server {
+			runDir "run/server"
+		}
+		client {
+			runDir "run/client"
+		}
+	}
+}
+
+// https://gist.github.com/maityyy/3dbcd558d58a6412c3a2a38c72706e8e
+afterEvaluate {
+	loom.runs.configureEach {
+		vmArg "-javaagent:${configurations.compileClasspath.find{ it.name.contains("sponge-mixin") }}"
+		if (System.getenv("DISABLE_PROPERTIES_UPDATE") == null) vmArg "-Ddevauth.enabled=true"
+	}
+}
+
+configurations {
+	includeModImplementation
+
+	include.extendsFrom           includeModImplementation
+	modImplementation.extendsFrom includeModImplementation
+
+
+	includeImplementation
+
+	include.extendsFrom        includeImplementation
+	implementation.extendsFrom includeImplementation
+
+
+	includeApi
+
+	include.extendsFrom includeApi
+	api.extendsFrom     includeApi
+}
+
+repositories {
+	mavenCentral()
+	mavenLocal()
+	maven {
+		name = "DevAuth"
+		url = "https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1"
+		content {
+			includeGroup "me.djtheredstoner"
+		}
+	}
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings "net.fabricmc:yarn:${project.yarn_version}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// DevAuth
+	modLocalRuntime "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
+}
+
+processResources {
+	final Map properties = Map<String, String>.of(
+			"modVersion",                 project.mod_version,
+			"supportedMinecraftVersions", project.supported_minecraft_versions
+	)
+
+	inputs.properties(properties)
+
+	filesMatching("fabric.mod.json") {
+		expand(properties)
+	}
+
+	exclude ".cache/**"
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}" }
+	}
+}
+
+modrinth {
+	token = System.getenv("MODRINTH_TOKEN")
+	projectId = "lan-whitelist"
+	def customVersionName = System.getenv("VERSION_NAME")
+	if (customVersionName != null) versionName = customVersionName
+	versionNumber = "${project.version}"
+	versionType = "alpha"
+	def isPreRelease = System.getenv("VERSION_IS_PRERELEASE")
+	versionType = !"false".equals(isPreRelease) ? "beta" : "release"
+	uploadFile = remapJar.archiveFile
+	//additionalFiles = [sourcesJar.archiveFile, javadocJar.archiveFile]
+	additionalFiles = [sourcesJar.archiveFile]
+	gameVersions = outlet.mcVersions()
+	syncBodyFrom = rootProject.file("README.md").text
+	def changelogEnv = System.getenv("VERSION_CHANGELOG")
+	if (changelogEnv != null) changelog = changelogEnv
+
+	dependencies {
+	}
+}
+
+tasks.modrinth.dependsOn(tasks.modrinthSyncBody)
