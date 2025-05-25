@@ -1,6 +1,7 @@
 package top.offsetmonkey538.lanwhitelist;
 
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.WhitelistEntry;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -9,6 +10,7 @@ import top.offsetmonkey538.lanwhitelist.persistent.WhitelistPersistentState;
 import java.io.IOException;
 
 import static com.mojang.text2speech.Narrator.LOGGER;
+import static net.minecraft.server.command.CommandManager.literal;
 
 public class LANWhitelistClient implements ClientModInitializer {
 
@@ -31,6 +33,22 @@ public class LANWhitelistClient implements ClientModInitializer {
 
 			// Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
 			server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
+		});
+
+		CommandRegistrationCallback.EVENT.register((commandDispatcher, commandRegistryAccess, registrationEnvironment) -> {
+			commandDispatcher.register(
+					literal("whitelist")
+							.executes(context -> {
+
+								context.getSource().getServer().getPlayerManager().setWhitelistEnabled(true);
+								WhitelistPersistentState state = WhitelistPersistentState.getServerState(context.getSource().getServer());
+								state.enabled = true;
+								state.markDirty();
+
+								context.getSource().getServer().getPlayerManager().getWhitelist().add(new WhitelistEntry(context.getSource().getPlayerOrThrow().getGameProfile()));
+								return 1;
+							})
+			);
 		});
 	}
 }

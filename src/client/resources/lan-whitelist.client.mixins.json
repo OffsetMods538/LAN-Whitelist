@@ -1,11 +1,14 @@
 {
-	"required": true,
-	"package": "top.offsetmonkey538.lanwhitelist.mixin.client",
-	"compatibilityLevel": "JAVA_17",
-	"client": [
-
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+    "required": true,
+    "package": "top.offsetmonkey538.lanwhitelist.mixin.client",
+    "compatibilityLevel": "JAVA_17",
+    "client": [
+        "PlayerManagerMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "PlayerManagerMixin"
+    ]
 }

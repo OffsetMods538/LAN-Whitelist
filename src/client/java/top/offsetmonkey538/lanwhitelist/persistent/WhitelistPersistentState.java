@@ -1,16 +1,11 @@
 package top.offsetmonkey538.lanwhitelist.persistent;
 
-import net.minecraft.nbt.NbtByte;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtInt;
-import net.minecraft.nbt.NbtTypes;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.Whitelist;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 
 import static top.offsetmonkey538.lanwhitelist.LANWhitelist.MOD_ID;
 

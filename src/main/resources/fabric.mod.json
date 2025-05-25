@@ -14,7 +14,7 @@
 	},
 	"license": "MIT",
 	"icon": "assets/lan-whitelist/icon.png",
-	"environment": "*",
+	"environment": "client",
 	"entrypoints": {
 		"main": [
 			"top.offsetmonkey538.lanwhitelist.LANWhitelist"
