@@ -32,6 +32,7 @@
 	],
 	"accessWidener": "lan-whitelist.accesswidener",
 	"depends": {
-		"minecraft": "${supportedMinecraftVersions}"
+		"minecraft": "${supportedMinecraftVersions}",
+		"fabric-api": "*"
 	}
 }

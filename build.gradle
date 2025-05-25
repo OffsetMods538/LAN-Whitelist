@@ -19,6 +19,7 @@ outlet {
 	allowedReleaseTypes = Set.of(ReleaseType.RELEASE)
 	propertiesData = [
 			'yarn_version': outlet.yarnVersion(project.minecraft_version),
+			'fapi_version': outlet.fapiVersion(project.minecraft_version),
 			'loader_version': outlet.loaderVersion()
 	]
 }
@@ -90,6 +91,9 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_version}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
+	// Fabric API
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fapi_version}"
+
 	// DevAuth
 	modLocalRuntime "me.djtheredstoner:DevAuth-fabric:${devauth_version}"
 }
@@ -141,6 +145,7 @@ modrinth {
 	if (changelogEnv != null) changelog = changelogEnv
 
 	dependencies {
+		required.project "fabric-api"
 	}
 }
 
