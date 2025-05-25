@@ -23,14 +23,14 @@ public class LANWhitelistClient implements ClientModInitializer {
 			server.getPlayerManager().setWhitelistEnabled(enabled);
 			server.setEnforceWhitelist(enabled);
 
-			// Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
-			server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
-
 			try {
 				server.getPlayerManager().getWhitelist().load();
 			} catch (IOException e) {
 				LOGGER.warn("Failed to load white-list: ", e);
 			}
+
+			// Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
+			server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
 		});
 	}
 }
