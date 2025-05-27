@@ -14,11 +14,18 @@ public class LANWhitelist implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		// Actually turns out this won't be reached anyway cause environment in fabric.mod.json is set to client but ehh just in case I guess?
-		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
-			LOGGER.error("You have installed LAN Whitelist on a dedicated server!");
-			LOGGER.error("This mod will only do anything on a SINGLEPLAYER LAN world");
-			LOGGER.error("You can ignore this error, but know that this won't do anything on a DEDICATED server.");
-		}
+		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) logServer();
+	}
+
+
+	public static <T> T logServer(T returnValue) {
+		logServer();
+		return returnValue;
+	}
+	public static void logServer() {
+		LOGGER.error("You have installed LAN Whitelist on a dedicated server!");
+		LOGGER.error("This mod will only do anything on a SINGLEPLAYER LAN world");
+		LOGGER.error("You can ignore this error, but know that this won't do anything on a DEDICATED server.");
 	}
 
 	public static Identifier id(String path) {

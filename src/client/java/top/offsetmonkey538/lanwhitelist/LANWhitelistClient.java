@@ -31,7 +31,10 @@ public class LANWhitelistClient implements ClientModInitializer {
 		// Hopefully early enough so enabling whitelist here will apply to clients that join like almost instantly.
 		//  Though I guess the host would seed to actually turn on LAN before anyone could try joining? There are probably mods that force lan from the beginning though...
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-			if (!(server instanceof IntegratedServer integratedServer)) return;
+			if (!(server instanceof IntegratedServer integratedServer)) {
+                LANWhitelist.logServer();
+                return;
+            }
 
 			final boolean enabled = WhitelistPersistentState.getServerState(server).enabled;
 			server.getPlayerManager().setWhitelistEnabled(enabled);
@@ -53,10 +56,14 @@ public class LANWhitelistClient implements ClientModInitializer {
                             // Only allow host to manage whitelist.
                             //  No console on singleplayer so no need to worry about that.
                             //  Command blocks (and other non-player executors) definitely shouldn't cause another player could (when lan is opened with cheats) place down a command block and run the whitelist command
+                            if (!(source.getServer() instanceof IntegratedServer server)) {
+                                LANWhitelist.logServer();
+                                return false;
+                            }
 
-                            return source.getServer() instanceof IntegratedServer server && source.getEntity() instanceof PlayerEntity player &&  server.isHost(player.getGameProfile());
+                            return source.getEntity() instanceof PlayerEntity player &&  server.isHost(player.getGameProfile());
                         })
-                        .then(literal("on").executes(context -> WhitelistCommand.executeOn(context.getSource())))
+                        .then(literal("on").executes(context -> WhitelistCommand.executeOn(context.getSource()))) // TODO: add host to whitelist here (not sure if that happens right now or not)
                         .then(literal("off").executes(context -> WhitelistCommand.executeOff(context.getSource())))
                         .then(literal("list").executes(context -> WhitelistCommand.executeList(context.getSource())))
                         .then(
@@ -86,7 +93,7 @@ public class LANWhitelistClient implements ClientModInitializer {
                                                         .executes(context -> {
                                                             final ServerCommandSource source = context.getSource();
                                                             final Collection<GameProfile> targets = GameProfileArgumentType.getProfileArgument(context, "targets");
-                                                            if (!(source.getServer() instanceof IntegratedServer server)) return -1;
+                                                            if (!(source.getServer() instanceof IntegratedServer server)) return LANWhitelist.logServer(-1);
 
                                                             // Write to new list so iteration isn't messed with
                                                             final LinkedList<GameProfile> newTargets = new LinkedList<>();
@@ -104,7 +111,7 @@ public class LANWhitelistClient implements ClientModInitializer {
                                                         })
                                         )
                         )
-                        .then(literal("reload").executes(context -> WhitelistCommand.executeReload(context.getSource())))
+                        .then(literal("reload").executes(context -> WhitelistCommand.executeReload(context.getSource()))) // TODO: also here
         ));
 	}
 }
