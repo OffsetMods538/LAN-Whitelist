@@ -1,8 +1,7 @@
 package top.offsetmonkey538.lanwhitelist.persistent;
 
-import com.mojang.datafixers.util.Function4;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.mojang.serialization.DataResult;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import net.minecraft.datafixer.DataFixTypes;
@@ -19,7 +18,9 @@ import top.offsetmonkey538.lanwhitelist.LANWhitelist;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -149,7 +150,7 @@ public class WhitelistPersistentState extends PersistentState {
                     try {
                         return (WhitelistPersistentState) method.invoke(
                                 manager,
-                                (Function<NbtCompound, WhitelistPersistentState>) (nbt -> CODEC.parse(NbtOps.INSTANCE, nbt).resultOrPartial(LANWhitelist.LOGGER::error).orElse(new WhitelistPersistentState())),
+                                (Function<NbtCompound, WhitelistPersistentState>) nbt -> getResultOrPartialFromNbt(CODEC, nbt, LANWhitelist.LOGGER::error).orElse(new WhitelistPersistentState()),
                                 emptySupplier,
                                 id
                         );
@@ -174,7 +175,7 @@ public class WhitelistPersistentState extends PersistentState {
                         try {
                             return (WhitelistPersistentState) method.invoke(
                                     manager,
-                                    typeConstructor.newInstance(emptySupplier, (BiFunction<NbtCompound, ?, WhitelistPersistentState>) (nbt, lookup) -> CODEC.parse(NbtOps.INSTANCE, nbt).resultOrPartial(LANWhitelist.LOGGER::error).orElse(new WhitelistPersistentState()), null),
+                                    typeConstructor.newInstance(emptySupplier, (BiFunction<NbtCompound, ?, WhitelistPersistentState>) (nbt, lookup) -> getResultOrPartialFromNbt(CODEC, nbt, LANWhitelist.LOGGER::error).orElse(new WhitelistPersistentState()), null),
                                     id
                             );
                         } catch (IllegalAccessException | InvocationTargetException | InstantiationException ex) {
@@ -213,6 +214,17 @@ public class WhitelistPersistentState extends PersistentState {
                 }
             }
             getOrCreate = result;
+        }
+
+        private static <T extends PersistentState> Optional<T> getResultOrPartialFromNbt(Codec<T> codec, NbtCompound nbt, Consumer<String> onError) {
+            try {
+                final Object dataResult = codec.parse(NbtOps.INSTANCE, nbt);
+                final Method getResultOrPartial = dataResult.getClass().getMethod("getResultOrPartial", Consumer.class);
+                //noinspection unchecked
+                return (Optional<T>) getResultOrPartial.invoke(dataResult, onError);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
