@@ -219,7 +219,7 @@ public class WhitelistPersistentState extends PersistentState {
         private static <T extends PersistentState> Optional<T> getResultOrPartialFromNbt(Codec<T> codec, NbtCompound nbt, Consumer<String> onError) {
             try {
                 final Object dataResult = codec.parse(NbtOps.INSTANCE, nbt);
-                final Method getResultOrPartial = dataResult.getClass().getMethod("getResultOrPartial", Consumer.class);
+                final Method getResultOrPartial = dataResult.getClass().getDeclaredMethod("resultOrPartial", Consumer.class);
                 //noinspection unchecked
                 return (Optional<T>) getResultOrPartial.invoke(dataResult, onError);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
