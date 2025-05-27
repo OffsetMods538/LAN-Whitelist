@@ -39,11 +39,47 @@ public class WhitelistPersistentState extends PersistentState {
 
     }
 
-    // At some point, Minecraft started using the registry lookup stuff, but it's not available in 1.20, so I don't use '@Override' and have implementations both with and without the lookup
+
+    //  The 'writeNbt' method needs to be overriden in versions up to (and including) 1.21.4.
+    //
+    //  First problem is that before 1.20.5, the method just took an NbtCompound, but up to 1.21.4 it also takes a registry wrapper.
+    //   Solution: include both method (without @Override) definitions so the correct method will always be implemented.
+    //
+    //  Second problem is that neither of the super methods actually exist at build time, because 1.21.5 doesn't use nbt for this at all. (also a problem when building on 1.21.4 or 1.20.4, just then only one of the methods doesn't exist)
+    //  Thus loom won't know to remap them to anything, and they'll be left with just the yarn names, which won't be implemented when anything other than yarn is used (for example production where intermediary is used)
+    //   Solution: include the methods with names from the three main mappings that could be used: yarn, intermediary, mojmaps
+
+    //  With registry wrapper (?.??.? - 1.20.4)
+
+    // yarn
     public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        return writeNbt(nbt);
+        return writeNbtImplementation(nbt);
     }
+    // intermediary
+    public NbtCompound method_75(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        return writeNbtImplementation(nbt);
+    }
+    // mojmaps
+    public NbtCompound save(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        return writeNbtImplementation(nbt);
+    }
+
+    //  Without registry wrapper (1.20.5 - 1.21.4)
+
     public NbtCompound writeNbt(NbtCompound nbt) {
+        return writeNbtImplementation(nbt);
+    }
+    // intermediary
+    public NbtCompound method_75(NbtCompound nbt) {
+        return writeNbtImplementation(nbt);
+    }
+    // mojmaps
+    public NbtCompound save(NbtCompound nbt) {
+        return writeNbtImplementation(nbt);
+    }
+
+    //  Actual implementation of it
+    public NbtCompound writeNbtImplementation(NbtCompound nbt) {
         nbt.putBoolean(ENABLED_KEY, enabled);
         return nbt;
     }
@@ -113,7 +149,7 @@ public class WhitelistPersistentState extends PersistentState {
                     try {
                         return (WhitelistPersistentState) method.invoke(
                                 manager,
-                                (Function<NbtCompound, WhitelistPersistentState>) nbt -> CODEC.parse(NbtOps.INSTANCE, nbt).resultOrPartial(LANWhitelist.LOGGER::error).orElse(new WhitelistPersistentState()),
+                                (Function<NbtCompound, WhitelistPersistentState>) (nbt -> CODEC.parse(NbtOps.INSTANCE, nbt).resultOrPartial(LANWhitelist.LOGGER::error).orElse(new WhitelistPersistentState())),
                                 emptySupplier,
                                 id
                         );
