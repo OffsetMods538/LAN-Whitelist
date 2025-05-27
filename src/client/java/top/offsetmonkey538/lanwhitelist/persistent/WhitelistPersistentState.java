@@ -135,7 +135,7 @@ public class WhitelistPersistentState extends PersistentState {
                 "method_17924", // getOrCreate
                 org.objectweb.asm.Type.getMethodDescriptor(
                         org.objectweb.asm.Type.getObjectType("net/minecraft/class_18"), // PersistentState
-                        org.objectweb.asm.Type.getObjectType("net.minecraft.class_10741") // PersistentStateType
+                        org.objectweb.asm.Type.getObjectType("net/minecraft/class_10741") // PersistentStateType
                 )
         );
 
