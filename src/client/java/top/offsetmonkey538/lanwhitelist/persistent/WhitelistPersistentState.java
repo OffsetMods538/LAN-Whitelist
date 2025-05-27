@@ -81,8 +81,9 @@ public class WhitelistPersistentState extends PersistentState {
 
     //  Actual implementation of it
     public NbtCompound writeNbtImplementation(NbtCompound nbt) {
-        nbt.putBoolean(ENABLED_KEY, enabled);
-        return nbt;
+        return (NbtCompound) CODEC.encodeStart(NbtOps.INSTANCE, this).resultOrPartial(LANWhitelist.LOGGER::error).orElseThrow();
+        //nbt.putBoolean(ENABLED_KEY, enabled);
+        //return nbt;
     }
 
 
