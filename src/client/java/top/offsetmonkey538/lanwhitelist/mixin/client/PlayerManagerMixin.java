@@ -1,6 +1,6 @@
 package top.offsetmonkey538.lanwhitelist.mixin.client;
 
-import net.minecraft.network.ClientConnection;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.Whitelist;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -85,7 +85,7 @@ public abstract class PlayerManagerMixin {
             method = "onPlayerConnect",
             at = @At("RETURN")
     )
-    private void lan_whitelist$notifyHostOfWhitelistStatus(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+    private void lan_whitelist$notifyHostOfWhitelistStatus(CallbackInfo ci, @Local(argsOnly = true) ServerPlayerEntity player) {
         if (!(player.getServer() instanceof IntegratedServer integratedServer)) {
             LANWhitelist.logServer();
             return;
