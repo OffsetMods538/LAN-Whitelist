@@ -57,8 +57,7 @@ public class LANWhitelistClient implements ClientModInitializer {
                 return;
             }
 
-            final boolean enabled = WhitelistEnabled.isWhitelistEnabled(integratedServer);
-            player.sendMessage(Text.translatable(enabled ? "lan-whitelist.enabled" : "lan-whitelist.disabled").formatted(Formatting.YELLOW), false);
+            sendEnabledMessageToHost(integratedServer, WhitelistEnabled.isWhitelistEnabled(integratedServer));
         });
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, commandRegistryAccess, registrationEnvironment) -> dispatcher.register(
@@ -140,8 +139,25 @@ public class LANWhitelistClient implements ClientModInitializer {
                             // Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
                             server.getPlayerManager().getWhitelist().add(new WhitelistEntry(server.getHostProfile()));
 
+                            // Reload isEnabled and send chat message
+                            final boolean enabled = WhitelistEnabled.isWhitelistEnabled(server);
+                            server.getPlayerManager().setWhitelistEnabled(enabled);
+                            server.setEnforceWhitelist(enabled);
+
+                            sendEnabledMessageToHost(server, enabled);
+
                             return WhitelistCommand.executeReload(context.getSource());
-                        })) // TODO: also reload if it's enabled
+                        }))
         ));
 	}
+
+    private static void sendEnabledMessageToHost(final IntegratedServer server, final boolean enabled) {
+        final GameProfile hostProfile = server.getHostProfile();
+        if (hostProfile == null) throw new IllegalStateException("Host player profile not set!");
+
+        final PlayerEntity hostPlayer = server.getPlayerManager().getPlayer(hostProfile.getId());
+        if (hostPlayer == null) throw new IllegalStateException("Host player not in server???");
+
+        hostPlayer.sendMessage(Text.translatable(enabled ? "lan-whitelist.enabled" : "lan-whitelist.disabled").formatted(Formatting.YELLOW), false);
+    }
 }
