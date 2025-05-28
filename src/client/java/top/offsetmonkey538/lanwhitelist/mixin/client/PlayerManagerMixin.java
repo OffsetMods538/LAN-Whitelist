@@ -125,6 +125,7 @@ public abstract class PlayerManagerMixin {
             LANWhitelist.logServer();
             return;
         }
+        if (!integratedServer.isHost(player.getGameProfile())) return;
 
         LANWhitelistClient.sendEnabledMessageToHost(integratedServer, WhitelistEnabled.isWhitelistEnabled(integratedServer));
     }
