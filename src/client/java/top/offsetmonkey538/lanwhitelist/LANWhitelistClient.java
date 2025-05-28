@@ -3,8 +3,8 @@ package top.offsetmonkey538.lanwhitelist;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -51,8 +51,8 @@ public class LANWhitelistClient implements ClientModInitializer {
             server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
 		});
 
-        ServerPlayerEvents.JOIN.register(player -> {
-            if (!(player.getServer() instanceof IntegratedServer integratedServer)) {
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            if (!(server instanceof IntegratedServer integratedServer)) {
                 LANWhitelist.logServer();
                 return;
             }
