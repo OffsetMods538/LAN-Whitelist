@@ -47,8 +47,8 @@ public class LANWhitelistClient implements ClientModInitializer {
 				LOGGER.warn("Failed to load white-list: ", e);
 			}
 
-			// Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
-			server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
+            // Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
+            server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
 		});
 
         ServerPlayerEvents.JOIN.register(player -> {
@@ -74,7 +74,16 @@ public class LANWhitelistClient implements ClientModInitializer {
 
                             return source.getEntity() instanceof PlayerEntity player &&  server.isHost(player.getGameProfile());
                         })
-                        .then(literal("on").executes(context -> WhitelistCommand.executeOn(context.getSource()))) // TODO: add host to whitelist here (not sure if that happens right now or not)
+                        .then(literal("on").executes(context -> {
+                            if (!(context.getSource().getServer() instanceof IntegratedServer server)) {
+                                LANWhitelist.logServer();
+                                return 0;
+                            }
+                            // Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
+                            server.getPlayerManager().getWhitelist().add(new WhitelistEntry(server.getHostProfile()));
+
+                            return WhitelistCommand.executeOn(context.getSource());
+                        }))
                         .then(literal("off").executes(context -> WhitelistCommand.executeOff(context.getSource())))
                         .then(literal("list").executes(context -> WhitelistCommand.executeList(context.getSource())))
                         .then(
@@ -122,7 +131,17 @@ public class LANWhitelistClient implements ClientModInitializer {
                                                         })
                                         )
                         )
-                        .then(literal("reload").executes(context -> WhitelistCommand.executeReload(context.getSource()))) // TODO: also here // TODO: also reload if it's enabled
+                        .then(literal("reload").executes(context -> {
+                            if (!(context.getSource().getServer() instanceof IntegratedServer server)) {
+                                LANWhitelist.logServer();
+                                return 0;
+                            }
+
+                            // Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
+                            server.getPlayerManager().getWhitelist().add(new WhitelistEntry(server.getHostProfile()));
+
+                            return WhitelistCommand.executeReload(context.getSource());
+                        })) // TODO: also reload if it's enabled
         ));
 	}
 }
