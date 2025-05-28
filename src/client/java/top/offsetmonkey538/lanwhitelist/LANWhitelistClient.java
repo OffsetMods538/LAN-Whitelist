@@ -14,7 +14,7 @@ import net.minecraft.server.dedicated.command.WhitelistCommand;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import top.offsetmonkey538.lanwhitelist.persistent.WhitelistPersistentState;
+import top.offsetmonkey538.lanwhitelist.config.WhitelistEnabled;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -36,7 +36,7 @@ public class LANWhitelistClient implements ClientModInitializer {
                 return;
             }
 
-			final boolean enabled = WhitelistPersistentState.getServerState(server).enabled;
+			final boolean enabled = WhitelistEnabled.isWhitelistEnabled(integratedServer);
 			server.getPlayerManager().setWhitelistEnabled(enabled);
 			server.setEnforceWhitelist(enabled);
 
@@ -111,7 +111,7 @@ public class LANWhitelistClient implements ClientModInitializer {
                                                         })
                                         )
                         )
-                        .then(literal("reload").executes(context -> WhitelistCommand.executeReload(context.getSource()))) // TODO: also here
+                        .then(literal("reload").executes(context -> WhitelistCommand.executeReload(context.getSource()))) // TODO: also here // TODO: also reload if it's enabled
         ));
 	}
 }
