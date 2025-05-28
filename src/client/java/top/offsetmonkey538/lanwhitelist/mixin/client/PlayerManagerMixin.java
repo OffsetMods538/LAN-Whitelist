@@ -82,7 +82,27 @@ public abstract class PlayerManagerMixin {
     }
 
     @Inject(
-            method = "onPlayerConnect",
+            method = {
+                    // 1.21.5 //
+
+                    // Yarn
+                    "Lnet/minecraft/server/PlayerManager;onPlayerConnect(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;Lnet/minecraft/server/network/ConnectedClientData;)V",
+                    // Intermediary
+                    "Lnet/minecraft/class_3324;method_14570(Lnet/minecraft/class_2535;Lnet/minecraft/class_3222;Lnet/minecraft/class_8792;)V",
+                    // Mojmap
+                    "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;Lnet/minecraft/server/network/CommonListenerCookie;)V",
+
+
+                    // 1.20.1 //
+
+                    // Yarn
+                    "Lnet/minecraft/server/PlayerManager;onPlayerConnect(Lnet/minecraft/network/ClientConnection;Lnet/minecraft/server/network/ServerPlayerEntity;)V",
+                    // Intermediary
+                    "Lnet/minecraft/class_3324;method_14570(Lnet/minecraft/class_2535;Lnet/minecraft/class_3222;)V",
+                    // Mojmap
+                    "Lnet/minecraft/server/players/PlayerList;placeNewPlayer(Lnet/minecraft/network/Connection;Lnet/minecraft/server/level/ServerPlayer;)V",
+            },
+            remap = false,
             at = @At("RETURN")
     )
     private void lan_whitelist$notifyHostOfWhitelistStatus(CallbackInfo ci, @Local(argsOnly = true) ServerPlayerEntity player) {
