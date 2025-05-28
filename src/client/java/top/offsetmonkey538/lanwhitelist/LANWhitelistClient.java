@@ -51,15 +51,6 @@ public class LANWhitelistClient implements ClientModInitializer {
             server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
 		});
 
-        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
-            if (!(server instanceof IntegratedServer integratedServer)) {
-                LANWhitelist.logServer();
-                return;
-            }
-
-            sendEnabledMessageToHost(integratedServer, WhitelistEnabled.isWhitelistEnabled(integratedServer));
-        });
-
 		CommandRegistrationCallback.EVENT.register((dispatcher, commandRegistryAccess, registrationEnvironment) -> dispatcher.register(
                 literal("whitelist")
                         .requires(source -> {
@@ -151,7 +142,7 @@ public class LANWhitelistClient implements ClientModInitializer {
         ));
 	}
 
-    private static void sendEnabledMessageToHost(final IntegratedServer server, final boolean enabled) {
+    public static void sendEnabledMessageToHost(final IntegratedServer server, final boolean enabled) {
         final GameProfile hostProfile = server.getHostProfile();
         if (hostProfile == null) throw new IllegalStateException("Host player profile not set!");
 

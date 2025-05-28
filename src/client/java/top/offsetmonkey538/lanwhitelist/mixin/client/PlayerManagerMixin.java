@@ -1,8 +1,10 @@
 package top.offsetmonkey538.lanwhitelist.mixin.client;
 
+import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.Whitelist;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.WorldSavePath;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,6 +13,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import top.offsetmonkey538.lanwhitelist.LANWhitelist;
+import top.offsetmonkey538.lanwhitelist.LANWhitelistClient;
 import top.offsetmonkey538.lanwhitelist.config.WhitelistEnabled;
 
 import java.io.IOException;
@@ -76,5 +79,18 @@ public abstract class PlayerManagerMixin {
         } catch (IOException e) {
             LANWhitelist.LOGGER.warn("Failed to load white-list: ", e);
         }
+    }
+
+    @Inject(
+            method = "onPlayerConnect",
+            at = @At("RETURN")
+    )
+    private void lan_whitelist$notifyHostOfWhitelistStatus(ClientConnection connection, ServerPlayerEntity player, CallbackInfo ci) {
+        if (!(player.getServer() instanceof IntegratedServer integratedServer)) {
+            LANWhitelist.logServer();
+            return;
+        }
+
+        LANWhitelistClient.sendEnabledMessageToHost(integratedServer, WhitelistEnabled.isWhitelistEnabled(integratedServer));
     }
 }
