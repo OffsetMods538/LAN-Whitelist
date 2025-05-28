@@ -1,3 +1,5 @@
 {
-    "commands.lan_whitelist.whitelist.remove.host": "Can't remove the host (%s) from whitelist!"
+    "commands.lan_whitelist.whitelist.remove.host": "Can't remove the host (%s) from whitelist!",
+    "lan-whitelist.enabled": "Whitelist in enabled!",
+    "lan-whitelist.disabled": "Whitelist is disabled!"
 }

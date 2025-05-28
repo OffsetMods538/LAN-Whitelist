@@ -3,6 +3,7 @@ package top.offsetmonkey538.lanwhitelist;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.GameProfileArgumentType;
@@ -49,6 +50,16 @@ public class LANWhitelistClient implements ClientModInitializer {
 			// Always add host player to whitelist. Wouldn't want to ban them from their singleplayer world now, would I?
 			server.getPlayerManager().getWhitelist().add(new WhitelistEntry(integratedServer.getHostProfile()));
 		});
+
+        ServerPlayerEvents.JOIN.register(player -> {
+            if (!(player.getServer() instanceof IntegratedServer integratedServer)) {
+                LANWhitelist.logServer();
+                return;
+            }
+
+            final boolean enabled = WhitelistEnabled.isWhitelistEnabled(integratedServer);
+            player.sendMessage(Text.translatable(enabled ? "lan-whitelist.enabled" : "lan-whitelist.disabled").formatted(Formatting.YELLOW), false);
+        });
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, commandRegistryAccess, registrationEnvironment) -> dispatcher.register(
                 literal("whitelist")
