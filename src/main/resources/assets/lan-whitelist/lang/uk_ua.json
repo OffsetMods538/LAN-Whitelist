@@ -1,0 +1,6 @@
+{
+    "commands.lan_whitelist.whitelist.remove.host": "Власника (%s) світу не можна видалити з білого списку!",
+    "lan-whitelist.enabled": "Білий список увімкнено!",
+    "lan-whitelist.disabled": "Білий список вимкнено!",
+    "modmenu.descriptionTranslation.lan-whitelist": "Умикає білий список у світах LAN для гри наодинці. Корисно з такими модами, як e4mc"
+}
